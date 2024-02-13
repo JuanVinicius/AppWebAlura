@@ -9,6 +9,7 @@ import (
 )
 
 type Produto struct {
+	Id         int
 	Nome       string
 	Descricao  string
 	Preco      float64
@@ -20,20 +21,40 @@ var temp = template.Must(template.ParseGlob("templates/*.html"))
 func main() {
 	http.HandleFunc("/", index)
 	http.ListenAndServe(":8000", nil)
-
-	db := connDB()
-	defer db.Close()
-
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
-	produtos := []Produto{
-		{"Tenis", "Confortavel", 89, 3},
-		{"Fone", "Muito bom", 59, 1},
-		{"PN", "show", 99, 11},
+	db := connDB()
+
+	selectAllProducts, err := db.Query("select * from produtos")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	p := Produto{}
+	produtos := []Produto{}
+
+	for selectAllProducts.Next() {
+		var id, quantidade int
+		var nome, descricao string
+		var preco float64
+
+		err = selectAllProducts.Scan(&id, &nome, &descricao, &preco, &quantidade)
+		if err != nil {
+			panic(err.Error())
+		}
+
+		p.Nome = nome
+		p.Descricao = descricao
+		p.Preco = preco
+		p.Quantidade = quantidade
+
+		produtos = append(produtos, p)
 	}
 
 	temp.ExecuteTemplate(w, "Index", produtos)
+	defer db.Close()
+
 }
 
 func connDB() *sql.DB {
