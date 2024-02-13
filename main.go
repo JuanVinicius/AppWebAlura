@@ -1,20 +1,12 @@
 package main
 
 import (
-	"html/template"
 	"net/http"
 
-	"github.com/juanvinicius/AppWebAlura/models"
+	"github.com/juanvinicius/AppWebAlura/routes"
 )
 
-var temp = template.Must(template.ParseGlob("templates/*.html"))
-
 func main() {
-	http.HandleFunc("/", index)
+	routes.TraceRoutes()
 	http.ListenAndServe(":8000", nil)
-}
-
-func index(w http.ResponseWriter, r *http.Request) {
-	allProducts := models.SearchAllProducts()
-	temp.ExecuteTemplate(w, "Index", allProducts)
 }
