@@ -8,4 +8,5 @@ import (
 
 func TraceRoutes() {
 	http.HandleFunc("/", controllers.Index)
+	http.HandleFunc("/new", controllers.New)
 }
